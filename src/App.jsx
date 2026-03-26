@@ -5,16 +5,37 @@ export default function App() {
   const [name, setName] = useState("");
 
   const handleSubmit = async () => {
-    const res = await fetch("/api/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, name }),
-    });
+    console.log("Submitting:", { name, email });
 
-    const data = await res.json();
-    console.log(data);
+    if (!name || !email) {
+      console.error("Error: Name and email are required");
+      alert("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, name }),
+      });
+
+      const data = await res.json();
+      console.log("Response:", data);
+
+      if (res.ok) {
+        alert("Form submitted successfully!");
+        setName("");
+        setEmail("");
+      } else {
+        alert("Error: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Failed to submit form: " + error.message);
+    }
   };
 
   return (
@@ -23,12 +44,14 @@ export default function App() {
 
       <input
         placeholder="Name"
+        value={name}
         onChange={(e) => setName(e.target.value)}
       />
       <br /><br />
 
       <input
         placeholder="Email"
+        value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
       <br /><br />
